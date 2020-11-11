@@ -1,7 +1,15 @@
 
 
-start.vax.date <- as.Date('2016-08-15')
-end.vax.date <- as.Date('2016-09-01')
+dates.test <- list(
+  as.Date(c('2016-08-15','2016-09-01')),
+  as.Date(c('2016-05-15','2016-12-31')),
+  as.Date(c('2016-08-15','2016-12-31'))
+
+)
+
+for(k in 1:length(dates.test)){
+start.vax.date <- dates.test[[k]][1]
+end.vax.date <- dates.test[[k]][2]
 length.vax.period <- as.numeric(end.vax.date - start.vax.date)
 
 date.vax <- start.vax.date + 
@@ -33,3 +41,4 @@ prop.obs <- apply(mat1,2,sum)
 
 plot(all.dates,prop.obs, type='l', main='N people under observaiton at each date')
 arrows(x0=as.Date('2016-11-01'), x1=as.Date('2017-03-01'), y0=0, col='red', lwd=3, length=0)
+}
