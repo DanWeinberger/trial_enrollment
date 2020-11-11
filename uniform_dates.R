@@ -1,4 +1,4 @@
-
+#TODO: calculate % of follow up time that occurs during RSV season
 
 dates.test <- list(
   as.Date(c('2016-08-15','2016-09-01')),
