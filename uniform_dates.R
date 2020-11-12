@@ -1,44 +1,58 @@
 #TODO: calculate % of follow up time that occurs during RSV season
+source('./functions/coverage_func.R')
 
-dates.test <- list(
-  as.Date(c('2016-08-15','2016-09-01')),
-  as.Date(c('2016-05-15','2016-12-31')),
-  as.Date(c('2016-08-15','2016-12-31'))
-
+dates.test2 <- list(
+  #2 month windows
+  as.Date(c('2016-06-01','2016-07-31')),
+  as.Date(c('2016-07-01','2016-08-31')), 
+  as.Date(c('2016-08-01','2016-09-30')), 
+  as.Date(c('2016-09-01','2016-10-31')), 
+  as.Date(c('2016-10-01','2016-11-30')), 
+  as.Date(c('2016-11-01','2016-12-31'))
 )
 
-for(k in 1:length(dates.test)){
-start.vax.date <- dates.test[[k]][1]
-end.vax.date <- dates.test[[k]][2]
-length.vax.period <- as.numeric(end.vax.date - start.vax.date)
+dates.test3 <- list(
+  #3 month windows
+  as.Date(c('2016-06-01','2016-08-31')),
+  as.Date(c('2016-07-01','2016-09-30')), 
+  as.Date(c('2016-08-01','2016-10-31')), 
+  as.Date(c('2016-09-01','2016-11-30')), 
+  as.Date(c('2016-10-01','2016-12-31')) 
+)
 
-date.vax <- start.vax.date + 
-  sample(c(1:length.vax.period), size=1000, replace=T ) 
+dates.test4 <- list(
+  #4 month windows
+  as.Date(c('2016-06-01','2016-09-30')),
+  as.Date(c('2016-07-01','2016-10-31')), 
+  as.Date(c('2016-08-01','2016-11-30')), 
+  as.Date(c('2016-09-01','2016-12-31'))
+)          
+  #as.Date(c('2016-08-15','2016-09-01')),
+  #as.Date(c('2016-05-15','2016-12-31')),
+  #as.Date(c('2016-08-15','2016-12-31')),
+  #as.Date(c('2016-06-01','2016-08-31'))
 
-hist(date.vax, breaks=20)
 
-date.born <- date.vax + 45
 
-follow.period.end <- date.born +180
+cov.2month <- lapply(dates.test2,coverage_func)
+cov.3month <- lapply(dates.test3,coverage_func)
+cov.4month <- lapply(dates.test4,coverage_func)
+cov.all <- c(cov.2month,cov.3month,cov.4month)
 
-date.df <- cbind.data.frame(date.born,follow.period.end)
-date.df <- date.df[order(date.df$date.born),]
-plot(y=1:length(date.df$date.born), x=date.df$date.born , col='white', xlim=c(min(date.df$date.born), min(date.df$date.born)+365 ))
-arrows(x0=date.df$date.born, x1=date.df$follow.period.end, 
-       y0=1:length(date.df$date.born), 
-       length=0,
-       col=rgb(0,0,0,alpha=0.1))
+start.dates <- as.Date(sapply(cov.all, '[[', 'start.vax.date'), origin = as.Date('1970-01-01'))
+end.dates <- as.Date(sapply(cov.all, '[[', 'end.vax.date'), origin = as.Date('1970-01-01'))
+prop.rsv.season <- sapply(cov.all, '[[', 'prop.rsv.season')
 
-#to look at density, need to create a matrix with every day * N participants
-all.dates <- seq.Date(from=min(date.born), length.out = 365, by='day')
+summary.table <- cbind.data.frame(start.dates,end.dates ,prop.rsv.season)
+summary.table$month.recruitment <- round((summary.table$end.dates - summary.table$start.dates)/30.3) 
+summary.table <- summary.table[order(-summary.table$prop.rsv.season),]
 
-mat1 <- matrix(0,nrow=nrow(date.df), ncol=365)
 
-for(i in 1: nrow(mat1)){
-  mat1[i,] <- all.dates >= date.df$date.born[i] & all.dates <= date.df$follow.period.end[i]
-}
-prop.obs <- apply(mat1,2,sum)
 
-plot(all.dates,prop.obs, type='l', main='N people under observaiton at each date')
-arrows(x0=as.Date('2016-11-01'), x1=as.Date('2017-03-01'), y0=0, col='red', lwd=3, length=0)
-}
+# plot(all.dates,prop.obs, type='l', 
+#      xlim=as.Date(c('2016-06-01', '2017-05-31')),
+#      main= paste0(round(prop.rsv.season*100),'% of f.u. during RSV season'),
+#      sub=paste0('Vaccinate ' ,start.vax.date,' - ', end.vax.date))
+# arrows(x0=as.Date('2016-11-01'), x1=as.Date('2017-03-01'), y0=0, col='red', lwd=3, length=0, ylab='N people under observaiton at each date')
+# 
+
