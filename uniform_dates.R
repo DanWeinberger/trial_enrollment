@@ -1,4 +1,5 @@
 #5-13 weeks is key period of protection
+#--two curves of interest: age-dependent incidence and age-dependent
 
 #TODO: calculate % of follow up time that occurs during RSV season
 source('./functions/coverage_func.R')
