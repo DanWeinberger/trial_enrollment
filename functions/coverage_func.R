@@ -10,18 +10,20 @@ coverage_func <- function(dates.test){
   
   date.born <- date.vax + 45
   
-  follow.period.end <- date.born +180
+  date.risk.start <- date.born + 7*5 #risk period starts 5 weeks after birth
   
-  date.df <- cbind.data.frame(date.born,follow.period.end)
-  date.df <- date.df[order(date.df$date.born),]
+  follow.period.end <- date.born + 7*13 #risk period lowers after 13 weeks
+  
+  date.df <- cbind.data.frame(date.risk.start,follow.period.end)
+  date.df <- date.df[order(date.df$date.risk.start),]
 
   #to look at density, need to create a matrix with every day * N participants
-  all.dates <- seq.Date(from=min(date.born), length.out = 365, by='day')
+  all.dates <- seq.Date(from=min(date.risk.start), length.out = 365, by='day')
   
   mat1 <- matrix(0,nrow=nrow(date.df), ncol=365)
   
   for(i in 1: nrow(mat1)){
-    mat1[i,] <- all.dates >= date.df$date.born[i] & all.dates <= date.df$follow.period.end[i]
+    mat1[i,] <- all.dates >= date.df$date.risk.start[i] & all.dates <= date.df$follow.period.end[i]
   }
   prop.obs <- apply(mat1,2,sum)
   
