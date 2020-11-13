@@ -5,6 +5,7 @@
 
 #TODO: calculate % of follow up time that occurs during RSV season
 source('./functions/coverage_func.R')
+agedist1 <- readRDS('./data/smooth.age.dist.rds')
 
 dates.test2 <- list(
   #2 month windows
