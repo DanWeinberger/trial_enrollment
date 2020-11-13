@@ -10,26 +10,40 @@ coverage_func <- function(dates.test){
   
   date.born <- date.vax + 45
   
-  date.risk.start <- date.born + 7*5 #risk period starts 5 weeks after birth
+  #date.risk.start <- date.born + 7*5 #risk period starts 5 weeks after birth
+  date.risk.start <- date.born
   
-  follow.period.end <- date.born + 7*13 #risk period lowers after 13 weeks
+  #follow.period.end <- date.born + 7*13 #risk period lowers after 13 weeks
+  follow.period.end <- date.born + 180 #follow kids for 180 days
   
-  date.df <- cbind.data.frame(date.risk.start,follow.period.end)
+    
+  date.df <- cbind.data.frame(date.born,date.risk.start,follow.period.end)
   date.df <- date.df[order(date.df$date.risk.start),]
 
   #to look at density, need to create a matrix with every day * N participants
-  all.dates <- seq.Date(from=min(date.risk.start), length.out = 365, by='day')
+  all.dates <- seq.Date(from=min(date.born), length.out = 365, by='day')
   
+  #scale age dist of risk
+  agedist1$scale.risk <- agedist1$Age.Inc.Smooth/max(agedist1$Age.Inc.Smooth, na.rm=T)
+  
+  #mat1 captures individual's risk at each day of life udring follow up period
   mat1 <- matrix(0,nrow=nrow(date.df), ncol=365)
   
   for(i in 1: nrow(mat1)){
-    mat1[i,] <- all.dates >= date.df$date.risk.start[i] & all.dates <= date.df$follow.period.end[i]
+    aged.indv <- cbind.data.frame('aged'= as.numeric(all.dates - date.df$date.born[i] ))
+    aged.indv$aged[aged.indv$aged<0 ] <- 0
+    aged.indv <- merge(aged.indv, agedist1, all=T, by='aged')
+    aged.indv <- aged.indv[aged.indv$aged>0 & aged.indv$aged <180 & !is.na(aged.indv$aged) , ]
+    mat1[i,all.dates > date.df$date.born[i] & all.dates< date.df$follow.period.end[i]] <- aged.indv$scale.risk  #is kid under observation at the date?
   }
-  prop.obs <- apply(mat1,2,sum)
   
-  prop.rsv.season <- sum(prop.obs[all.dates>=as.Date('2016-11-01') & all.dates <= as.Date('2017-03-01')])/ sum(prop.obs)
+
+  sum.indiv.risk <- apply(mat1,2,sum)
   
-  out.list <- list('all.dates'=all.dates,'start.vax.date'=start.vax.date,'end.vax.date'=end.vax.date,'prop.rsv.season'=prop.rsv.season,'prop.obs'=prop.obs )
+  #Next need to multiply sum.indiv.risk  
+  prop.rsv.season <- sum(sum.indiv.risk[all.dates>=as.Date('2016-11-01') & all.dates <= as.Date('2017-03-01')])/ sum(sum.indiv.risk)
+  
+  out.list <- list('all.dates'=all.dates,'start.vax.date'=start.vax.date,'end.vax.date'=end.vax.date,'prop.rsv.season'=prop.rsv.season,'sum.indiv.risk'=sum.indiv.risk, 'indiv.risk'=mat1 )
   return(out.list)
   
 }

@@ -1,33 +1,49 @@
 source('coverage_func.R')
+library(RColorBrewer)
+agedist1 <- readRDS('../data/smooth.age.dist.rds')
+n.cols=181
+nice.cols <-  colorRampPalette(brewer.pal(11, "YlOrRd"))(n.cols)
+
 server <- function(input, output){
-  output$countyPlot = renderPlot({
-   
-    cov.month <- coverage_func(as.Date(c(input$recruit.dates)))
-    start.dates <- cov.month$start.vax.date
-    end.dates <- cov.month$end.vax.date
-    prop.rsv.season <- cov.month$prop.rsv.season
-    
-    
-    rsv.dates <- cov.month$all.dates[cov.month$all.dates>=as.Date('2016-11-01') & cov.month$all.dates <=as.Date('2017-03-01')]
-    prop.obs.rsv <- cov.month$prop.obs[cov.month$all.dates>=as.Date('2016-11-01') & cov.month$all.dates <=as.Date('2017-03-01')]
-     plot(cov.month$all.dates,cov.month$prop.obs, type='l', 
+ 
+  
+    output$plot1 = renderPlot({
+      cov.month <-  coverage_func(as.Date(c(input$recruit.dates))) 
+      start.dates <- cov.month$start.vax.date 
+      end.dates <- cov.month$end.vax.date 
+      prop.rsv.season <- cov.month$prop.rsv.season 
+      
+      rsv.dates <- cov.month$all.dates[cov.month$all.dates>=as.Date('2016-11-01') & cov.month$all.dates <=as.Date('2017-03-01')] 
+      prop.obs.rsv <- cov.month$sum.indiv.risk[cov.month$all.dates>=as.Date('2016-11-01') & cov.month$all.dates <=as.Date('2017-03-01')] 
+      
+    plot(cov.month$all.dates,cov.month$sum.indiv.risk, type='l', 
           xlim=as.Date(c('2016-06-01', '2017-05-31')),
           main= paste0(round(cov.month$prop.rsv.season*100),'% of f.u. during RSV season'),
           sub=paste0('Vaccinate ' ,cov.month$start.vax.date,' - ', cov.month$end.vax.date))
      arrows(x0=as.Date('2016-11-01'), x1=as.Date('2017-03-01'), y0=0, col='red', lwd=3, length=0, ylab='N people under observaiton at each date')
      polygon( c(cov.month$all.dates, rev(cov.month$all.dates) ), 
-              c(rep(0, times=length(cov.month$prop.obs)),rev(cov.month$prop.obs)), 
+              c(rep(0, times=length(cov.month$sum.indiv.risk)),rev(cov.month$sum.indiv.risk)), 
               col=rgb(0,0,1, alpha=0.2) , border=NA )
      polygon( c(rsv.dates, rev(rsv.dates) ), 
               c(rep(0, times=length(rsv.dates)),rev(prop.obs.rsv)) , 
-              col=rgb(1,0,0, alpha=0.2) , border=NA ) 
+              col=rgb(1,0,0, alpha=0.2) , border=NA )
+    })
+    
+    
+    # output$plot2 = renderPlot({
+    #           cov.month <-  coverage_func(as.Date(c(input$recruit.dates))) 
+    #           downsample <- cov.month$indiv.risk[seq(1, nrow(cov.month$indiv.risk), 10),seq(1, ncol(cov.month$indiv.risk), 7)]
+    #         ds.dates <-cov.month$all.dates[seq(1, ncol(cov.month$indiv.risk), 7)]
+    #           
+    #            heatmap(downsample,Rowv=NA, Colv=NA, scale='none', 
+    #          cexRow=0.75,
+    #          labCol= ds.dates,
+    #          labRow = c('Subjects'),
+    #          margins=c(3,5), col=nice.cols)
+    #   })
      
-  } ,
   
-  width = "auto",
-  height = "auto"
-  
-  )}
+  }
 
 si <- shiny::selectInput
 
@@ -47,12 +63,15 @@ ui <- shiny::fluidPage(
        ),
     
     shiny::mainPanel(
-      shiny::plotOutput("countyPlot"),
+      shiny::plotOutput("plot1"),
+      #shiny::plotOutput("plot2"),
       shiny::column(
         8,
         align = 'justify',
         shiny::hr(),
         shiny::span(""),
+        shiny::hr(),
+        shiny::span("Assumptions: (1) During the vaccination window, the same number of people are vaccinated on each day (2) Children are born 45 days after vaccine introduction (3) The age distribution of risk is following that seen in the US (4) Kids are followed for 180 days"),
         shiny::hr(),
         shiny::span("This app and package were developed by Dan Weinberger of The Public Health Modeling Unit at Yale School of Public Health.")
       )
