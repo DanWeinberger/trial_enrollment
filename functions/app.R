@@ -1,14 +1,15 @@
 source('coverage_func.R')
 library(RColorBrewer)
-agedist1 <- readRDS('smooth.age.dist.rds')
-n.cols=181
-nice.cols <-  colorRampPalette(brewer.pal(11, "YlOrRd"))(n.cols)
+agedist1 <- readRDS('./data/smooth.age.dist.rds')
 
 server <- function(input, output){
- 
+
+  n.cols=181
+  nice.cols <-  colorRampPalette(brewer.pal(9, "YlOrRd"))(n.cols)
+  
   
     output$plot1 = renderPlot({
-      cov.month <-  coverage_func(as.Date(c(input$recruit.dates))) 
+      cov.month <-  coverage_func(as.Date(c(input$recruit.dates)), agedist = agedist1) 
       start.dates <- cov.month$start.vax.date 
       end.dates <- cov.month$end.vax.date 
       prop.rsv.season <- cov.month$prop.rsv.season 
@@ -31,11 +32,11 @@ server <- function(input, output){
     
     
     # output$plot2 = renderPlot({
-    #           cov.month <-  coverage_func(as.Date(c(input$recruit.dates))) 
+    #           cov.month <-  coverage_func(as.Date(c(input$recruit.dates)), agedist = agedist1)
     #           downsample <- cov.month$indiv.risk[seq(1, nrow(cov.month$indiv.risk), 10),seq(1, ncol(cov.month$indiv.risk), 7)]
     #         ds.dates <-cov.month$all.dates[seq(1, ncol(cov.month$indiv.risk), 7)]
-    #           
-    #            heatmap(downsample,Rowv=NA, Colv=NA, scale='none', 
+    # 
+    #            heatmap(downsample,Rowv=NA, Colv=NA, scale='none',
     #          cexRow=0.75,
     #          labCol= ds.dates,
     #          labRow = c('Subjects'),

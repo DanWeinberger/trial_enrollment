@@ -5,8 +5,8 @@ account: weinbergerlab
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3216639
-bundleId: 3856356
+bundleId: 3856437
 url: https://weinbergerlab.shinyapps.io/vax_dates/
-when: 1605271284.33931
+when: 1605272733.29158
 asMultiple: FALSE
 asStatic: FALSE

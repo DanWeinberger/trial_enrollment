@@ -1,4 +1,4 @@
-coverage_func <- function(dates.test){
+coverage_func <- function(dates.test, agedist){
   start.vax.date <- dates.test[1]
   end.vax.date <- dates.test[2]
   length.vax.period <- as.numeric(end.vax.date - start.vax.date)
@@ -24,7 +24,7 @@ coverage_func <- function(dates.test){
   all.dates <- seq.Date(from=min(date.born), length.out = 365, by='day')
   
   #scale age dist of risk
-  agedist1$scale.risk <- agedist1$Age.Inc.Smooth/max(agedist1$Age.Inc.Smooth, na.rm=T)
+  agedist$scale.risk <- agedist$Age.Inc.Smooth/max(agedist$Age.Inc.Smooth, na.rm=T)
   
   #mat1 captures individual's risk at each day of life udring follow up period
   mat1 <- matrix(0,nrow=nrow(date.df), ncol=365)
@@ -32,7 +32,7 @@ coverage_func <- function(dates.test){
   for(i in 1: nrow(mat1)){
     aged.indv <- cbind.data.frame('aged'= as.numeric(all.dates - date.df$date.born[i] ))
     aged.indv$aged[aged.indv$aged<0 ] <- 0
-    aged.indv <- merge(aged.indv, agedist1, all=T, by='aged')
+    aged.indv <- merge(aged.indv, agedist, all=T, by='aged')
     aged.indv <- aged.indv[aged.indv$aged>0 & aged.indv$aged <180 & !is.na(aged.indv$aged) , ]
     mat1[i,all.dates > date.df$date.born[i] & all.dates< date.df$follow.period.end[i]] <- aged.indv$scale.risk  #is kid under observation at the date?
   }
