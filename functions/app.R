@@ -1,6 +1,6 @@
 source('coverage_func.R')
 library(RColorBrewer)
-agedist1 <- readRDS('../data/smooth.age.dist.rds')
+agedist1 <- readRDS('smooth.age.dist.rds')
 n.cols=181
 nice.cols <-  colorRampPalette(brewer.pal(11, "YlOrRd"))(n.cols)
 
