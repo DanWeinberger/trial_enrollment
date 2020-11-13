@@ -1,4 +1,4 @@
-coverage_func <- function(dates.test, agedist){
+coverage_func <- function(dates.test, agedist, rsv.smooth){
   start.vax.date <- dates.test[1]
   end.vax.date <- dates.test[2]
   length.vax.period <- as.numeric(end.vax.date - start.vax.date)
@@ -23,10 +23,17 @@ coverage_func <- function(dates.test, agedist){
   #to look at density, need to create a matrix with every day * N participants
   all.dates <- seq.Date(from=min(date.born), length.out = 365, by='day')
   
+  rsv.smooth$smooth.rsv.scale <- rsv.smooth$smooth.rsv/max(rsv.smooth$smooth.rsv, na.rm=T)
+  rsv.smooth <- rsv.smooth[order(rsv.smooth$date),]
+  #pull out relevatn dates for RSv activity
+  rsv.smooth2 <- rsv.smooth[rsv.smooth$date %in% all.dates,]
+  rsv.smooth2 <- unique(rsv.smooth2)
+  rsv.smooth2$rsv.smooth.scale <- rsv.smooth2$smooth.rsv/max(rsv.smooth2$smooth.rsv, na.rm=T)
+  
   #scale age dist of risk
   agedist$scale.risk <- agedist$Age.Inc.Smooth/max(agedist$Age.Inc.Smooth, na.rm=T)
   
-  #mat1 captures individual's risk at each day of life udring follow up period
+  #mat1 captures individual's risk at each day of life during follow up period
   mat1 <- matrix(0,nrow=nrow(date.df), ncol=365)
   
   for(i in 1: nrow(mat1)){
@@ -39,11 +46,15 @@ coverage_func <- function(dates.test, agedist){
   
 
   sum.indiv.risk <- apply(mat1,2,sum)
+  sum.indiv.risk.scale <- sum.indiv.risk/max(sum.indiv.risk, na.rm=T)
   
   #Next need to multiply sum.indiv.risk  
-  prop.rsv.season <- sum(sum.indiv.risk[all.dates>=as.Date('2016-11-01') & all.dates <= as.Date('2017-03-01')])/ sum(sum.indiv.risk)
   
-  out.list <- list('all.dates'=all.dates,'start.vax.date'=start.vax.date,'end.vax.date'=end.vax.date,'prop.rsv.season'=prop.rsv.season,'sum.indiv.risk'=sum.indiv.risk, 'indiv.risk'=mat1 )
+  #what proportion of follow up occurs under the RSv curve?
+  #diff1 <- sum.indiv.risk.scale[sum.indiv.risk.scale<rsv.smooth2$rsv.smooth.scale]
+  prop.rsv.season <- sum(sum.indiv.risk.scale*(1-abs(rsv.smooth2$rsv.smooth.scale-sum.indiv.risk.scale)))/sum(sum.indiv.risk.scale)
+  
+  out.list <- list('all.dates'=all.dates,'start.vax.date'=start.vax.date,'end.vax.date'=end.vax.date,'prop.rsv.season'=prop.rsv.season,'sum.indiv.risk'=sum.indiv.risk, 'indiv.risk'=mat1,'rsv.smooth'=rsv.smooth )
   return(out.list)
   
 }
