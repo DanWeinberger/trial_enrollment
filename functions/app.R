@@ -18,7 +18,7 @@ server <- function(input, output){
       rsv.dates <- cov.month$all.dates[cov.month$all.dates>=as.Date('2016-11-01') & cov.month$all.dates <=as.Date('2017-03-01')] 
       prop.obs.rsv <- cov.month$sum.indiv.risk[cov.month$all.dates>=as.Date('2016-11-01') & cov.month$all.dates <=as.Date('2017-03-01')] 
       risk.scale <- cov.month$sum.indiv.risk/max(cov.month$sum.indiv.risk, na.rm=T)
-    plot(cov.month$all.dates,risk.scale, type='l', 
+    plot(cov.month$all.dates,risk.scale, type='l', xlab='',
           xlim=as.Date(c('2016-06-01', '2017-05-31')),
           main= paste0(round(cov.month$prop.rsv.season*100),'% of f.u. during RSV season'),
           sub=paste0('Vaccinate ' ,cov.month$start.vax.date,' - ', cov.month$end.vax.date))
@@ -37,7 +37,11 @@ server <- function(input, output){
      
     })
     
+    output$plot2 = renderPlot({
+             plot(agedist1$aged, agedist1$Age.Inc.Smooth, type='l', bty='l', xlab='Age(days)', ylab='Incidence')
+      })
     
+
     # output$plot2 = renderPlot({
     #           cov.month <-  coverage_func(as.Date(c(input$recruit.dates)), agedist = agedist1,rsv.smooth=rsv_season1)
     #           downsample <- cov.month$indiv.risk[seq(1, nrow(cov.month$indiv.risk), 10),seq(1, ncol(cov.month$indiv.risk), 7)]
@@ -63,7 +67,7 @@ ui <- shiny::fluidPage(
         'recruit.dates',
         'Date range to vaccinate mothers',
         min=as.Date(c('2016-05-01')),
-        max=as.Date(c('2016-12-01')),
+        max=as.Date(c('2017-02-01')),
         step=7,
         value=as.Date(c('2016-07-01', '2016-08-01'))
       )
@@ -72,7 +76,7 @@ ui <- shiny::fluidPage(
     
     shiny::mainPanel(
       shiny::plotOutput("plot1"),
-      #shiny::plotOutput("plot2"),
+      shiny::plotOutput("plot2"),
       shiny::column(
         8,
         align = 'justify',
