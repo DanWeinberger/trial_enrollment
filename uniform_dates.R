@@ -1,8 +1,11 @@
 #5-13 weeks is key period of protection
 #--two curves of interest: age-dependent incidence and age-dependent
+# Add option to select age distribution of risk (uniform, high income, low income)
+
 
 #TODO: calculate % of follow up time that occurs during RSV season
 source('./functions/coverage_func.R')
+agedist1 <- readRDS('./data/smooth.age.dist.rds')
 
 dates.test2 <- list(
   #2 month windows
@@ -58,4 +61,5 @@ summary.table <- summary.table[order(-summary.table$prop.rsv.season),]
 #      sub=paste0('Vaccinate ' ,start.vax.date,' - ', end.vax.date))
 # arrows(x0=as.Date('2016-11-01'), x1=as.Date('2017-03-01'), y0=0, col='red', lwd=3, length=0, ylab='N people under observaiton at each date')
 # 
+
 
