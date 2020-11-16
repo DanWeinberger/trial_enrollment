@@ -39,6 +39,7 @@ server <- function(input, output){
     
     output$plot2 = renderPlot({
              plot(agedist1$aged, agedist1$Age.Inc.Smooth, type='l', bty='l', xlab='Age(days)', ylab='Incidence')
+            abline(v=c(90,180,270, 360), lty=2, col=rgb(0,0,0,alpha=0.1))
       })
     
 
