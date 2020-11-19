@@ -1,6 +1,12 @@
 source('coverage_func.R')
 library(RColorBrewer)
-agedist1 <- readRDS('./data/smooth.age.dist.rds')
+agedist1 <- readRDS('./data/smooth.age.dist.resceu.rds')
+agedist1.alt <- readRDS('./data/smooth.age.dist.rds')
+
+plot(agedist1$aged, agedist1$Age.Inc.Smooth/max(agedist1$Age.Inc.Smooth, na.rm=T), type='l')
+points(agedist1.alt$aged, agedist1.alt$Age.Inc.Smooth/max(agedist1.alt$Age.Inc.Smooth, na.rm=T), col='red', type='l')
+
+
 rsv_season1 <- readRDS('./data/rsv.smooth.rds')
 
 server <- function(input, output){
